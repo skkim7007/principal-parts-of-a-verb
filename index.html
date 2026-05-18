@@ -214,7 +214,8 @@
         // 1. 학습 표 렌더링
         function renderTable() {
             const container = document.getElementById('learn-tables-container');
-            if (container.innerHTML !== '') return; // 이미 렌더링 된 경우 스킵
+            // 수정된 부분: 텍스트나 주석이 아닌, 실제 HTML 태그(표)가 들어있는지 확인하도록 변경했습니다.
+            if (container.children.length > 0) return; // 이미 렌더링 된 경우 스킵
             
             const types = ["A-A-A", "A-B-A", "A-B-B", "A-B-C"];
             const typeDescriptions = {
