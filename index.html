@@ -122,7 +122,7 @@
             </div>
 
             <div class="mt-8 text-center">
-                <button onclick="checkQuiz()" class="px-8 py-3 bg-gradient-to-r from-purple-500 to-indigo-500 text-white font-bold rounded-xl shadow-lg hover:shadow-xl hover:scale-105 transition-all">
+                <button id="quiz-action-btn" onclick="checkQuiz()" class="px-8 py-3 bg-gradient-to-r from-purple-500 to-indigo-500 text-white font-bold rounded-xl shadow-lg hover:shadow-xl hover:scale-105 transition-all">
                     채점하기 ✨
                 </button>
             </div>
@@ -382,8 +382,17 @@
         function initQuiz() {
             const container = document.getElementById('quiz-container');
             const resultBox = document.getElementById('quiz-result');
+            const actionBtn = document.getElementById('quiz-action-btn');
+            
             container.innerHTML = '';
             resultBox.classList.add('hidden');
+            
+            // 계속풀기 후 다시 채점하기 버튼으로 초기화
+            if(actionBtn) {
+                actionBtn.innerText = '채점하기 ✨';
+                actionBtn.onclick = checkQuiz;
+            }
+            
             quizAnswers = [];
             
             // 랜덤 5문제
@@ -493,6 +502,11 @@
                 resultBox.innerText = `🤔 5문제 중 ${score}문제를 맞췄습니다. 틀린 답을 확인해 보세요.`;
                 resultBox.classList.add('bg-orange-100', 'text-orange-700');
             }
+
+            // 채점 후 버튼을 '다른 문제 계속 풀기'로 변경
+            const actionBtn = document.getElementById('quiz-action-btn');
+            actionBtn.innerText = '다른 문제 계속 풀기 🔄';
+            actionBtn.onclick = initQuiz;
         }
 
         // 4. 게임 로직
@@ -691,7 +705,19 @@
                 if (document.getElementById('game').classList.contains('active') && isGameRunning) {
                     submitGameAnswer();
                 } else if (document.getElementById('quiz').classList.contains('active')) {
-                    checkQuiz();
+                    // 형성평가에서는 엔터키 누르면 채점 방지 및 다음 입력창으로 포커스 이동
+                    e.preventDefault();
+                    
+                    const inputs = Array.from(document.querySelectorAll('#quiz-container input[type="text"]:not([readonly])'));
+                    const currentIndex = inputs.indexOf(document.activeElement);
+                    
+                    if (currentIndex > -1 && currentIndex < inputs.length - 1) {
+                        // 다음 입력창으로 이동
+                        inputs[currentIndex + 1].focus();
+                    } else if (currentIndex === inputs.length - 1) {
+                        // 마지막 입력창이면 포커스 해제 (키보드 닫기)
+                        inputs[currentIndex].blur();
+                    }
                 }
             }
         });
